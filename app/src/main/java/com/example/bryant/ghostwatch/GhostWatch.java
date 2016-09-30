@@ -1,13 +1,16 @@
 package com.example.bryant.ghostwatch;
 
 //import android.content.Intent;
+
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
+import android.opengl.GLES20;
 
 import com.wikitude.architect.ArchitectView;
 import com.wikitude.architect.StartupConfiguration;
+import com.wikitude.architect.StartupConfiguration.CameraPosition;
 
 import java.io.IOException;
 
@@ -34,7 +37,10 @@ public class GhostWatch extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.wikitude);
         this.architectView = (ArchitectView) this.findViewById(R.id.architectView);
-        final StartupConfiguration config = new StartupConfiguration(key);
+        final StartupConfiguration config = new StartupConfiguration(
+                key,
+                StartupConfiguration.Features.Geo,
+                StartupConfiguration.CameraPosition.BACK);
 
         if (architectView == null)
             Log.e(this.getClass().getName(), "architectView is NULL");
@@ -51,10 +57,35 @@ public class GhostWatch extends AppCompatActivity {
     @Override
     protected void onPostCreate(final Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        if ( this.architectView != null ) {
+        if (this.architectView != null) {
             // call mandatory live-cycle method of architectView
             this.architectView.onPostCreate();
+
+            try {
+                this.architectView.load("index.html");
+                Log.e(this.getClass().getName(), "Loaded Architect world");
+            } catch (IOException e) {
+                Log.e(this.getClass().getName(), "Unable to load Architect world", e);
+            }
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        this.architectView.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.architectView.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        this.architectView.onDestroy();
     }
 
 }

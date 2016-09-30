@@ -13,10 +13,8 @@ import com.wikitude.architect.ArchitectView;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static Context ctx;
+    public Context ctx;
     private Button login;
-
-    //private ArchitectView architectView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
