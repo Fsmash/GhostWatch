@@ -1,6 +1,7 @@
 package com.example.bryant.ghostwatch;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -99,9 +100,16 @@ public class GhostWatch extends AppCompatActivity {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
-
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage("Camera needs to be enabled for AR experience.").setTitle("App Unable to Start");
+                builder.setMessage("Camera needs to be enabled for AR experience.").setTitle("App Unable to Start")
+                        .setPositiveButton(R.string.AlertDialog_OK, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // begin request for camera permission on OK
+                                ActivityCompat.requestPermissions(GhostWatch.this,
+                                        new String[]{Manifest.permission.CAMERA},
+                                        CAM);
+                            }
+                        });
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
