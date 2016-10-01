@@ -1,16 +1,17 @@
 package com.example.bryant.ghostwatch;
 
-//import android.content.Intent;
-
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
-import android.opengl.GLES20;
 
 import com.wikitude.architect.ArchitectView;
 import com.wikitude.architect.StartupConfiguration;
-import com.wikitude.architect.StartupConfiguration.CameraPosition;
 
 import java.io.IOException;
 
@@ -19,6 +20,8 @@ import java.io.IOException;
  */
 
 public class GhostWatch extends AppCompatActivity {
+    /* constants for permissions */
+    private final int CAM = 0;
 
     private final String key = "ewIuC8RbftJalqtOiIOmv4zpqE3eb2mqg/DygFqnV1SFCg+dmo+d5pdvcz98jOIVq5h2" +
             "KX4Gsl4j9XG9cLb8OsT5d8fz1pR2bQgJiIQoOW3a/s58wzPGVc+/WwagYbjM04M3mqcO8QRc1ZVXhjK583nLeDc" +
@@ -78,6 +81,8 @@ public class GhostWatch extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        permissionCheck();  // always recheck permissions
+        // TODO: make camera wait until onRequestPermissionsResult completes w/o error (if denied on resume)
         super.onResume();
         this.architectView.onResume();
     }
@@ -88,4 +93,41 @@ public class GhostWatch extends AppCompatActivity {
         this.architectView.onDestroy();
     }
 
+    private void permissionCheck() {
+        // from "https://developer.android.com/training/permissions/requesting.html#perm-request"
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+            /*if (ActivityCompat.shouldShowRequestPermissionRationale(thisActivity,
+                    Manifest.permission.CAMERA)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+            } else {*/
+            // No explanation needed, we can request the permission.
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    this.CAM);
+            //}
+        }
+    }
+
+    // from "https://developer.android.com/training/permissions/requesting.html#perm-request"
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String [] permissions, @NonNull int [] grantResults) {
+        switch (requestCode) {
+            case CAM: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    // if we are still denied permissions, return to login screen
+                    // TODO: return to login screen and exit
+                    Toast.makeText(this, "Camera permission required for AR!", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+            }
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
 }
