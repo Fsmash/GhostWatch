@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if (ArchitectView.isDeviceSupported(this)) {
-            Toast.makeText(getApplicationContext(), "Application supported by wikitude", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Application supported by Wikitude.", Toast.LENGTH_SHORT).show();
         }
         else {
             Intent intent = new Intent(Intent.ACTION_MAIN);

@@ -67,7 +67,7 @@ public class GhostWatch extends AppCompatActivity {
             this.architectView.onPostCreate();
 
             try {
-                this.architectView.load("index.html");
+                this.architectView.load("GhostWatchWorld/index.html");
                 Log.e(this.getClass().getName(), "Loaded Architect world");
             } catch (IOException e) {
                 Log.e(this.getClass().getName(), "Unable to load Architect world", e);
