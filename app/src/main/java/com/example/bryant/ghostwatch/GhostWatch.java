@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.wikitude.architect.ArchitectView;
@@ -73,6 +74,7 @@ public class GhostWatch extends AppCompatActivity {
             Log.e(this.getClass().getName(), "Exception in ArchitectView.onCreate()", rex);
         }
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         ConnectToServer c = new ConnectToServer();
         c.execute(usrName);
     }
