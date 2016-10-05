@@ -40,14 +40,14 @@ public class MainActivity extends AppCompatActivity {
         // Clearing ArchitectView cache
         clearCache(ArchitectView.getCacheDirectoryAbsoluteFilePath(this));
 
-
+        // if show map is not set, do whatever it did before,
         if (showMap == false) {
             login.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     camPermCheck();
                 }
             });
-        } else {
+        } else { // else open the map
             login.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     Intent intent = new Intent(MainActivity.this, MapsActivity.class);
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-
+        // this was all here before, may not be needed
         if (ArchitectView.isDeviceSupported(this)) {
             Toast.makeText(getApplicationContext(), "Application supported by Wikitude.", Toast.LENGTH_SHORT).show();
         }

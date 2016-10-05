@@ -33,8 +33,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
-
-
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -46,16 +44,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
         LatLng csub = new LatLng(35.349092, -119.104229);
         LatLng ghost = new LatLng(35.349292, -119.104529);
 
+        mMap = googleMap;
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(csub));
         googleMap.setMinZoomPreference(19.0f);
         googleMap.setMaxZoomPreference(19.0f);
         googleMap.setBuildingsEnabled(true);
-
 
         csub_mark = googleMap.addMarker(new MarkerOptions()
                 .position(csub).title("Player Location")
@@ -65,8 +61,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .position(ghost).title("Ghost")
                 .icon(BitmapDescriptorFactory
                         .fromResource(R.drawable.ghost)));
-
-
         googleMap.setOnMarkerClickListener(this);
 
         try {
@@ -82,8 +76,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (Resources.NotFoundException e) {
             Log.e("MapsActivityRaw", "Can't find style.", e);
         }
-
-
     }
     public boolean onMarkerClick(final Marker marker) {
 
