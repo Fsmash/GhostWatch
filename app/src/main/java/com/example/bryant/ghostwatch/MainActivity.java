@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.wikitude.architect.ArchitectView;
@@ -26,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
     private final int CAM = 0;
 
     private Button login;
+    private EditText username;
+    public final String LOGIN = "com.example.bryant.ghostwatch.MAINACTIVITY";
     //private Context ctx;
 
     @Override
@@ -34,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         this.setContentView(R.layout.activity_main);
         //this.ctx = getApplicationContext();
         login = (Button) findViewById(R.id.login_button);
+        username = (EditText) findViewById(R.id.editText2);
 
         // Clearing ArchitectView cache
         clearCache(ArchitectView.getCacheDirectoryAbsoluteFilePath(this));
@@ -104,9 +108,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void startCam() {
         Intent intent = new Intent(this, GhostWatch.class);
-        //EditText editText = (EditText) findViewById(R.id.edit_message);
-        //String message = editText.getText().toString();
-        //intent.putExtra(EXTRA_MESSAGE, message);
+        String usr = username.getText().toString();
+        intent.putExtra(LOGIN, usr);
         startActivity(intent);
     }
 

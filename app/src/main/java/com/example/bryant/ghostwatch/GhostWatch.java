@@ -2,7 +2,9 @@ package com.example.bryant.ghostwatch;
 
 import android.Manifest;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -16,6 +18,10 @@ import com.wikitude.architect.ArchitectView;
 import com.wikitude.architect.StartupConfiguration;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
 
 /**
  * Created by bryant on 9/28/16.
@@ -23,7 +29,6 @@ import java.io.IOException;
 
 public class GhostWatch extends AppCompatActivity {
     /* constants for permissions */
-    private final int CAM = 0;
 
     private final String key = "ewIuC8RbftJalqtOiIOmv4zpqE3eb2mqg/DygFqnV1SFCg+dmo+d5pdvcz98jOIVq5h2" +
             "KX4Gsl4j9XG9cLb8OsT5d8fz1pR2bQgJiIQoOW3a/s58wzPGVc+/WwagYbjM04M3mqcO8QRc1ZVXhjK583nLeDc" +
@@ -35,7 +40,14 @@ public class GhostWatch extends AppCompatActivity {
             "oBkQjVJYJhLWNg/hPmG7S/1XgJ16JoyqFjSlZ8ymjqo1euxjYn0F47UeSdS7Yj8I9x1NnL45FIEYgsWL+OebjdQ" +
             "gM9WhY=";
 
+    public final String LOGIN = "com.example.bryant.ghostwatch.MAINACTIVITY";
+    private final int CAM = 0;
+    private final String IP = "136.168.201.102";
+    private final int PORT = 9067;
     private ArchitectView architectView;
+    public ObjectOutputStream out = null;
+    public ObjectInputStream in = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,8 +59,11 @@ public class GhostWatch extends AppCompatActivity {
                 StartupConfiguration.Features.Geo,
                 StartupConfiguration.CameraPosition.BACK);
 
-        if (architectView == null)
-            Log.e(this.getClass().getName(), "architectView is NULL");
+        Intent intent = getIntent();
+        String usrName = intent.getStringExtra(LOGIN);
+
+        //if (this.architectView == null)
+        //    Log.e(this.getClass().getName(), "architectView is NULL");
 
         try {
             this.architectView.onCreate(config);
@@ -57,6 +72,9 @@ public class GhostWatch extends AppCompatActivity {
             Toast.makeText(getApplicationContext(), "can't create Architect View", Toast.LENGTH_SHORT).show();
             Log.e(this.getClass().getName(), "Exception in ArchitectView.onCreate()", rex);
         }
+
+        ConnectToServer c = new ConnectToServer();
+        c.execute(usrName);
     }
 
     @Override
@@ -93,6 +111,41 @@ public class GhostWatch extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         this.architectView.onDestroy();
+    }
+
+    private class ConnectToServer extends AsyncTask<String, Void, Boolean> {
+        //String msg = "";
+        //TextView msgBoard;
+
+        @Override
+        protected Boolean doInBackground(String... params) {
+            try {
+                InetAddress serverAddr = InetAddress.getByName(IP);
+                Socket sk = new Socket(serverAddr, PORT);
+                try {
+                    out = new ObjectOutputStream(sk.getOutputStream());
+                    in = new ObjectInputStream(sk.getInputStream());
+                    out.writeObject(params[0]);
+                    out.flush();
+
+                    //Uncomment this to update msgBoard
+                    //new Thread(new UpdateMsg()).start();
+
+                } catch (IOException e) {return false;}
+            } catch (IOException ei) {return false;}
+            Log.d("doInBackgroud", "connected to server");
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (result) {
+                Toast.makeText(getApplicationContext(), "Connected to server.", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(getApplicationContext(), "Failed to connect to server.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void permissionCheck() {
