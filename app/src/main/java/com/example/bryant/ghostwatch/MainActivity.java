@@ -5,6 +5,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
     private Button login;
     private EditText username;
     public final String LOGIN = "com.example.bryant.ghostwatch.MAINACTIVITY";
+    private MediaPlayer loginTheme;
     //private Context ctx;
 
     @Override
@@ -40,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
         //this.ctx = getApplicationContext();
         login = (Button) findViewById(R.id.login_button);
         username = (EditText) findViewById(R.id.editText2);
+        loginTheme = MediaPlayer.create(this, R.raw.spooky);
+        loginTheme.setLooping(true);
+        loginTheme.start();
 
         // Clearing ArchitectView cache
         clearCache(ArchitectView.getCacheDirectoryAbsoluteFilePath(this));
@@ -67,6 +72,32 @@ public class MainActivity extends AppCompatActivity {
             intent.addCategory(Intent.CATEGORY_HOME);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (loginTheme.isPlaying()) {
+            loginTheme.stop();
+            loginTheme.release();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        // TODO: make camera wait until onRequestPermissionsResult completes w/o error (if denied on resume)
+        super.onResume();
+        loginTheme = MediaPlayer.create(this, R.raw.spooky);
+        loginTheme.start();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (loginTheme.isPlaying()) {
+            loginTheme.stop();
+            loginTheme.release();
         }
     }
 
