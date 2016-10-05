@@ -13,6 +13,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -44,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
         username = (EditText) findViewById(R.id.editText2);
         loginTheme = MediaPlayer.create(this, R.raw.spooky);
         loginTheme.setLooping(true);
-        loginTheme.start();
 
         // Clearing ArchitectView cache
         clearCache(ArchitectView.getCacheDirectoryAbsoluteFilePath(this));
@@ -73,23 +73,42 @@ public class MainActivity extends AppCompatActivity {
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         }
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        if (loginTheme.isPlaying()) {
-            loginTheme.stop();
-            loginTheme.release();
+    protected void onStart() {
+        super.onStart();;
+        loginTheme.start();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(loginTheme.isPlaying()) {
+        loginTheme.stop();
+        loginTheme.release();
         }
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        loginTheme = MediaPlayer.create(this, R.raw.spooky);
+        loginTheme.setLooping(true);
     }
 
     @Override
     protected void onResume() {
         // TODO: make camera wait until onRequestPermissionsResult completes w/o error (if denied on resume)
         super.onResume();
-        loginTheme = MediaPlayer.create(this, R.raw.spooky);
         loginTheme.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        loginTheme.stop();
     }
 
     @Override

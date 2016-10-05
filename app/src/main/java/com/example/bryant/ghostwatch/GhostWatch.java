@@ -47,6 +47,7 @@ public class GhostWatch extends AppCompatActivity {
     private final String IP = "136.168.201.102";
     private final int PORT = 9067;
     private ArchitectView architectView;
+    private StartupConfiguration config;
     public ObjectOutputStream out = null;
     public ObjectInputStream in = null;
     private MediaPlayer boo;
@@ -56,32 +57,30 @@ public class GhostWatch extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.wikitude);
-        this.architectView = (ArchitectView) this.findViewById(R.id.architectView);
-        final StartupConfiguration config = new StartupConfiguration(
-                key,
-                StartupConfiguration.Features.Geo,
-                StartupConfiguration.CameraPosition.BACK);
+        //this.architectView = (ArchitectView) this.findViewById(R.id.architectView);
+        //config = new StartupConfiguration(key, StartupConfiguration.Features.Geo, StartupConfiguration.CameraPosition.BACK);
 
         Intent intent = getIntent();
         String usrName = intent.getStringExtra(LOGIN);
 
+        setupArchitectView();
         //if (this.architectView == null)
         //    Log.e(this.getClass().getName(), "architectView is NULL");
-
+        /*
         try {
             this.architectView.onCreate(config);
         } catch (RuntimeException rex) {
             this.architectView = null;
             Toast.makeText(getApplicationContext(), "can't create Architect View", Toast.LENGTH_SHORT).show();
             Log.e(this.getClass().getName(), "Exception in ArchitectView.onCreate()", rex);
-        }
+        }*/
 
         boo = MediaPlayer.create(this, R.raw.boo);
         boo.setLooping(true);
+        boo.start();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         ConnectToServer c = new ConnectToServer();
         c.execute(usrName);
-        boo.start();
     }
 
     @Override
@@ -101,10 +100,27 @@ public class GhostWatch extends AppCompatActivity {
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        this.architectView.onPause();
-        boo.stop();
+    protected void onStart() {
+        super.onStart();
+        boo.start();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        //setupArchitectView();
+        boo = MediaPlayer.create(this, R.raw.boo);
+        boo.setLooping(true);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        //this.architectView.onDestroy();
+        if (boo.isPlaying()) {
+            boo.stop();
+            boo.release();
+        }
     }
 
     @Override
@@ -117,12 +133,32 @@ public class GhostWatch extends AppCompatActivity {
     }
 
     @Override
+    protected void onPause() {
+        super.onPause();
+        this.architectView.onPause();
+        boo.stop();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         this.architectView.onDestroy();
         if (boo.isPlaying()) {
             boo.stop();
             boo.release();
+        }
+    }
+
+    private void setupArchitectView() {
+        this.architectView = (ArchitectView) this.findViewById(R.id.architectView);
+        config = new StartupConfiguration(key, StartupConfiguration.Features.Geo, StartupConfiguration.CameraPosition.BACK);
+
+        try {
+            this.architectView.onCreate(config);
+        } catch (RuntimeException rex) {
+            this.architectView = null;
+            Toast.makeText(getApplicationContext(), "can't create Architect View", Toast.LENGTH_SHORT).show();
+            Log.e(this.getClass().getName(), "Exception in ArchitectView.onCreate()", rex);
         }
     }
 
