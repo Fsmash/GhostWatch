@@ -21,6 +21,8 @@ import java.io.File;
 
 
 public class MainActivity extends AppCompatActivity {
+    /* set this to false to disable map */
+    final boolean showMap = true;
 
     /* constants for permissions */
     private final int CAM = 0;
@@ -38,11 +40,21 @@ public class MainActivity extends AppCompatActivity {
         // Clearing ArchitectView cache
         clearCache(ArchitectView.getCacheDirectoryAbsoluteFilePath(this));
 
-        login.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                camPermCheck();
-            }
-        });
+
+        if (showMap == false) {
+            login.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    camPermCheck();
+                }
+            });
+        } else {
+            login.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+                    MainActivity.this.startActivity(intent);
+                }
+            });
+        }
 
         if (ArchitectView.isDeviceSupported(this)) {
             Toast.makeText(getApplicationContext(), "Application supported by Wikitude.", Toast.LENGTH_SHORT).show();
