@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -48,6 +49,7 @@ public class GhostWatch extends AppCompatActivity {
     private ArchitectView architectView;
     public ObjectOutputStream out = null;
     public ObjectInputStream in = null;
+    private MediaPlayer boo;
 
 
     @Override
@@ -74,9 +76,12 @@ public class GhostWatch extends AppCompatActivity {
             Log.e(this.getClass().getName(), "Exception in ArchitectView.onCreate()", rex);
         }
 
+        boo = MediaPlayer.create(this, R.raw.boo);
+        boo.setLooping(true);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         ConnectToServer c = new ConnectToServer();
         c.execute(usrName);
+        boo.start();
     }
 
     @Override
@@ -99,6 +104,7 @@ public class GhostWatch extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         this.architectView.onPause();
+        boo.stop();
     }
 
     @Override
@@ -107,12 +113,17 @@ public class GhostWatch extends AppCompatActivity {
         // TODO: make camera wait until onRequestPermissionsResult completes w/o error (if denied on resume)
         super.onResume();
         this.architectView.onResume();
+        boo.start();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         this.architectView.onDestroy();
+        if (boo.isPlaying()) {
+            boo.stop();
+            boo.release();
+        }
     }
 
     private class ConnectToServer extends AsyncTask<String, Void, Boolean> {
