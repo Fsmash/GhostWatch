@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -44,15 +45,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        LatLng csub = new LatLng(35.349092, -119.104229);
-        LatLng ghost = new LatLng(35.349292, -119.104529);
+        LatLng csub = new LatLng(35.349392, -119.104499);
+        LatLng ghost = new LatLng(35.349292, -119.104559);
 
         mMap = googleMap;
         googleMap.moveCamera(CameraUpdateFactory.newLatLng(csub));
-        googleMap.setMinZoomPreference(19.0f);
-        googleMap.setMaxZoomPreference(19.0f);
-        googleMap.setBuildingsEnabled(true);
-
+        googleMap.setMinZoomPreference(20.0f);
+        googleMap.setMaxZoomPreference(20.0f);
+        googleMap.setBuildingsEnabled(false);
+        googleMap.getUiSettings().setMapToolbarEnabled(false);
+        googleMap.getUiSettings().setAllGesturesEnabled(false);
         csub_mark = googleMap.addMarker(new MarkerOptions()
                 .position(csub).title("Player Location")
                 .icon(BitmapDescriptorFactory
