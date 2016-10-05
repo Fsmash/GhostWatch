@@ -127,12 +127,12 @@ public class GhostWatch extends AppCompatActivity {
                     in = new ObjectInputStream(sk.getInputStream());
                     out.writeObject(params[0]);
                     out.flush();
-
-                    //Uncomment this to update msgBoard
-                    //new Thread(new UpdateMsg()).start();
-
-                } catch (IOException e) {return false;}
-            } catch (IOException ei) {return false;}
+                } catch (IOException e) {
+                    return false;
+                }
+            } catch (IOException ei) {
+                return false;
+            }
             Log.d("doInBackgroud", "connected to server");
             return true;
         }
@@ -141,8 +141,7 @@ public class GhostWatch extends AppCompatActivity {
         protected void onPostExecute(Boolean result) {
             if (result) {
                 Toast.makeText(getApplicationContext(), "Connected to server.", Toast.LENGTH_SHORT).show();
-            }
-            else {
+            } else {
                 Toast.makeText(getApplicationContext(), "Failed to connect to server.", Toast.LENGTH_SHORT).show();
             }
         }
@@ -166,18 +165,17 @@ public class GhostWatch extends AppCompatActivity {
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
-            }
-            else {// No explanation needed, we can request the permission.
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA},
-                    this.CAM);
+            } else {// No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.CAMERA},
+                        this.CAM);
             }
         }
     }
 
     // from "https://developer.android.com/training/permissions/requesting.html#perm-request"
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String [] permissions, @NonNull int [] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case CAM: {
                 // If request is cancelled, the result arrays are empty.

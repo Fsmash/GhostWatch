@@ -50,8 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (ArchitectView.isDeviceSupported(this)) {
             Toast.makeText(getApplicationContext(), "Application supported by Wikitude.", Toast.LENGTH_SHORT).show();
-        }
-        else {
+        } else {
             Intent intent = new Intent(Intent.ACTION_MAIN);
             intent.addCategory(Intent.CATEGORY_HOME);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -82,25 +81,23 @@ public class MainActivity extends AppCompatActivity {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage("Camera needs to be enabled for AR experience.").setTitle("App Unable to Start")
-                .setPositiveButton(R.string.AlertDialog_OK, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // begin request for camera permission on OK
-                        ActivityCompat.requestPermissions(MainActivity.this,
-                                new String[]{Manifest.permission.CAMERA},
-                                CAM);
-                    }
-                });
+                        .setPositiveButton(R.string.AlertDialog_OK, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                // begin request for camera permission on OK
+                                ActivityCompat.requestPermissions(MainActivity.this,
+                                        new String[]{Manifest.permission.CAMERA},
+                                        CAM);
+                            }
+                        });
 
                 AlertDialog dialog = builder.create();
                 dialog.show();
-            }
-            else { // No explanation needed, we can request the permission.
+            } else { // No explanation needed, we can request the permission.
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.CAMERA},
                         this.CAM);
             }
-        }
-        else {
+        } else {
             // we have camera permission, start GhostWatch
             startCam();
         }
@@ -116,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
     // from "https://developer.android.com/training/permissions/requesting.html#perm-request"
     // TODO: will add more permissions if/when needed
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String [] permissions, @NonNull int [] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case CAM: {
                 // If request is cancelled, the result arrays are empty.
