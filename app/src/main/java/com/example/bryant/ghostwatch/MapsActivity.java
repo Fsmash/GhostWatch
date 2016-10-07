@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -31,13 +32,27 @@ import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, ConnectionCallbacks, OnConnectionFailedListener {
 
+    private final int CAM = 0;
     private final int LOCATION = 1;
 
     private GoogleMap mMap;
     private Marker csub_mark;
     private Marker ghost_mark;
+
+    public final String USRNAME = "com.example.bryant.ghostwatch.MAINACTIVITY";
+    private final String IP = "136.168.201.102";
+    private final int PORT = 9067;
+    public ObjectOutputStream output = null;
+    public ObjectInputStream input = null;
 
     /**
      * Provides the entry point to Google Play services.
@@ -58,6 +73,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        Intent intent = getIntent();
+        String usrName = intent.getStringExtra(USRNAME);
+        ConnectToServer c = new ConnectToServer();
+        c.execute(usrName);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -108,10 +128,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public boolean onMarkerClick(final Marker marker) {
-
+        boolean cam = (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+                != PackageManager.PERMISSION_GRANTED);
         if (marker.equals(ghost_mark)) {
-            Intent intent = new Intent(MapsActivity.this, GhostWatch.class);
-            MapsActivity.this.startActivity(intent);
+            if (cam) {
+                camPermission();
+            } else {
+                Intent intent = new Intent(MapsActivity.this, GhostWatch.class);
+                MapsActivity.this.startActivity(intent);
+            }
         }
         return false;
     }
@@ -142,6 +167,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        try {
+            input.close();
+        } catch (IOException e) {}
+        try {
+            output.close();
+        } catch (IOException e) {}
+    }
+
     /**
      * Runs when a GoogleApiClient object successfully connects.
      */
@@ -157,7 +192,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
-            Toast.makeText(this, "Latitude: "+mLastLocation.getLatitude()+", Longitude: "+mLastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Latitude: " + mLastLocation.getLatitude() + ", Longitude: " + mLastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Error: Could not determine location", Toast.LENGTH_LONG).show();
         }
@@ -177,6 +212,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // attempt to re-establish the connection.
         //Log.i(TAG, "Connection suspended");
         mGoogleApiClient.connect();
+    }
+
+    private class ConnectToServer extends AsyncTask<String, Void, Boolean> {
+        @Override
+        protected Boolean doInBackground(String... params) {
+            try {
+                InetAddress serverAddr = InetAddress.getByName(IP);
+                Socket sk = new Socket(serverAddr, PORT);
+                try {
+                    output = new ObjectOutputStream(sk.getOutputStream());
+                    input = new ObjectInputStream(sk.getInputStream());
+                    output.writeObject(params[0]);
+                    output.flush();
+                } catch (IOException e) {
+                    return false;
+                }
+            } catch (IOException ei) {
+                return false;
+            }
+            Log.d("doInBackgroud", "connected to server");
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean result) {
+            if (result) {
+                Toast.makeText(getApplicationContext(), "Connected to server.", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getApplicationContext(), "Failed to connect to server.", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void permissionCheck() {
@@ -204,6 +270,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                         this.LOCATION);
             }
+        }
+    }
+
+    private void camPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Camera needs to be enabled for AR experience.").setTitle("App Unable to Start")
+                    .setPositiveButton(R.string.AlertDialog_OK, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // begin request for camera permission on OK
+                            ActivityCompat.requestPermissions(MapsActivity.this,
+                                    new String[]{Manifest.permission.CAMERA},
+                                    CAM);
+                        }
+                    });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        } else { // No explanation needed, we can request the permission.
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.CAMERA},
+                    this.CAM);
         }
     }
 

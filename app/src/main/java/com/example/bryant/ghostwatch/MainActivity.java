@@ -24,71 +24,56 @@ import java.io.File;
 
 
 public class MainActivity extends AppCompatActivity {
-    /* set this to false to disable map */
-    final boolean showMap = true;
-
     /* constants for permissions */
     private final int CAM = 0;
+    private final int LOCATION = 1;
 
     private Button login;
     private EditText username;
     public final String LOGIN = "com.example.bryant.ghostwatch.MAINACTIVITY";
     private MediaPlayer loginTheme;
-    //private Context ctx;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.activity_main);
-        //this.ctx = getApplicationContext();
+
+        deviceSupport();
+
+        // Clearing ArchitectView cache
+        clearCache(ArchitectView.getCacheDirectoryAbsoluteFilePath(this));
+
         login = (Button) findViewById(R.id.login_button);
         username = (EditText) findViewById(R.id.editText2);
         loginTheme = MediaPlayer.create(this, R.raw.spooky);
         loginTheme.setLooping(true);
 
-        // Clearing ArchitectView cache
-        clearCache(ArchitectView.getCacheDirectoryAbsoluteFilePath(this));
+        //locationPermission();
+        //camPermission();
 
-        // if show map is not set, do whatever it did before,
-        if (showMap == false) {
-            login.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    camPermCheck();
-                }
-            });
-        } else { // else open the map
-            login.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    Intent intent = new Intent(MainActivity.this, MapsActivity.class);
-                    MainActivity.this.startActivity(intent);
-                }
-            });
-        }
-        // this was all here before, may not be needed
-        if (ArchitectView.isDeviceSupported(this)) {
-            Toast.makeText(getApplicationContext(), "Application supported by Wikitude.", Toast.LENGTH_SHORT).show();
-        } else {
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.addCategory(Intent.CATEGORY_HOME);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        }
+        login.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                permissionCheck();
+            }
+        });
+
+        loginTheme.start();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
     protected void onStart() {
-        super.onStart();;
-        loginTheme.start();
+        super.onStart();
+        if (!loginTheme.isPlaying())
+            loginTheme.start();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if(loginTheme.isPlaying()) {
-        loginTheme.stop();
+        if (loginTheme.isPlaying())
+            loginTheme.stop();
         loginTheme.release();
-        }
     }
 
     @Override
@@ -114,10 +99,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (loginTheme.isPlaying()) {
+        if (loginTheme.isPlaying())
             loginTheme.stop();
-            loginTheme.release();
-        }
+        loginTheme.release();
+
     }
 
     // To clear architectView cache files every time app is run.
@@ -136,37 +121,55 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // for GhostWatch class
-    private void camPermCheck() {
+    private void permissionCheck() {
         // from "https://developer.android.com/training/permissions/requesting.html#perm-request"
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setMessage("Camera needs to be enabled for AR experience.").setTitle("App Unable to Start")
-                        .setPositiveButton(R.string.AlertDialog_OK, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // begin request for camera permission on OK
-                                ActivityCompat.requestPermissions(MainActivity.this,
-                                        new String[]{Manifest.permission.CAMERA},
-                                        CAM);
-                            }
-                        });
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            } else { // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.CAMERA},
-                        this.CAM);
-            }
+        boolean loc = (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED);
+        if (loc) {
+            locationPermission();
         } else {
-            // we have camera permission, start GhostWatch
-            startCam();
+            startMap();
         }
     }
 
-    private void startCam() {
-        Intent intent = new Intent(this, GhostWatch.class);
+    private void locationPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION) ||
+                ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Location required to determine where you are, and how close you are to ghosts!").setTitle("App Unable to Start")
+                    .setPositiveButton(R.string.AlertDialog_OK, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            // begin request for camera permission on OK
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                                    LOCATION);
+                        }
+                    });
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        } else {// No explanation needed, we can request the permission.
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                    this.LOCATION);
+        }
+    }
+
+    private void deviceSupport() {
+        if (ArchitectView.isDeviceSupported(this)) {
+            Toast.makeText(getApplicationContext(), "Application supported by Wikitude.", Toast.LENGTH_SHORT).show();
+        } else {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
+    }
+
+    private void startMap() {
+        Intent intent = new Intent(MainActivity.this, MapsActivity.class);
         String usr = username.getText().toString();
         intent.putExtra(LOGIN, usr);
         startActivity(intent);
@@ -180,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
             case CAM: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    startCam();
+                    startMap();
                 } else {
                     finish();   // cleanest way to "exit"
                 }
