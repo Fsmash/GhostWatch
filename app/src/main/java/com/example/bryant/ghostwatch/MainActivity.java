@@ -99,10 +99,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (loginTheme.isPlaying())
-            loginTheme.stop();
-        loginTheme.release();
-
     }
 
     // To clear architectView cache files every time app is run.

@@ -166,16 +166,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mGoogleApiClient.disconnect();
         }
     }
-
+/*
     @Override
     protected void onDestroy() {
-        try {
-            input.close();
-        } catch (IOException e) {}
-        try {
-            output.close();
-        } catch (IOException e) {}
-    }
+        if (input != null) {
+            try {
+                input.close();
+            } catch (IOException e) {}
+        }
+        if (output != null) {
+            try {
+                output.close();
+            } catch (IOException e) {}
+        }
+    }*/
 
     /**
      * Runs when a GoogleApiClient object successfully connects.

@@ -93,7 +93,6 @@ public class GhostWatch extends AppCompatActivity {
         if (boo.isPlaying())
             boo.stop();
         boo.release();
-
     }
 
     @Override
@@ -116,9 +115,6 @@ public class GhostWatch extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         this.architectView.onDestroy();
-        if (boo.isPlaying())
-            boo.stop();
-        boo.release();
     }
 
     private void setupArchitectView() {
