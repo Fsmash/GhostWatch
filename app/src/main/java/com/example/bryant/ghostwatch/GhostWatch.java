@@ -203,7 +203,7 @@ public class GhostWatch extends AppCompatActivity {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setMessage("Camera needs to be enabled for AR experience.").setTitle("App Unable to Start")
-                        .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                        .setPositiveButton(R.string.AlertDialog_OK, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
                                 // begin request for camera permission on OK
                                 ActivityCompat.requestPermissions(GhostWatch.this,
