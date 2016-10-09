@@ -1,6 +1,7 @@
 var World = {
 	loaded: false,
 	rotating: false,
+	animation: false,
 
 	init: function initFn() {
 		this.createModelAtLocation();
@@ -16,14 +17,6 @@ var World = {
 		/*
 			Next the model object is loaded.
 		*/
-		var modelEarth = new AR.Model("assets/boo.wt3", {
-			onLoaded: this.worldLoaded,
-			scale: {
-				x: 0.0025,
-				y: 0.0025,
-				z: 0.0025
-			}
-		});
 
         var indicatorImage = new AR.ImageResource("assets/indi.png");
 
@@ -31,12 +24,27 @@ var World = {
             verticalAnchor: AR.CONST.VERTICAL_ANCHOR.TOP
         });
 
+        var imgLightning = new AR.ImageResource("assets/lightning.png");
+
+        var lightning = new AR.AnimatedImageDrawable(imgLightning, 5, 128, 512);
+
+        lightning.animate([0, 1, 2, 3, 4, 5, 6, 7], 100, -1);
+
+        var modelGhost = new AR.Model("assets/boo.wt3", {
+        	onLoaded: this.worldLoaded,
+        	scale: {
+        		x: 0.0005,
+        		y: 0.0005,
+        		z: 0.0005
+        	}
+        });
+
 		/*
 			Putting it all together the location and 3D model is added to an AR.GeoObject.
 		*/
 		var obj = new AR.GeoObject(location, {
             drawables: {
-               cam: [modelEarth],
+               cam: [lightning, modelGhost],
                indicator: [indicatorDrawable]
             }
         });
@@ -47,6 +55,7 @@ var World = {
 		var e = document.getElementById('loadingMessage');
 		e.parentElement.removeChild(e);
 	}
+
 };
 
 World.init();

@@ -2,10 +2,8 @@ package com.example.bryant.ghostwatch;
 
 import android.Manifest;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -20,7 +18,6 @@ import com.wikitude.architect.ArchitectView;
 import com.wikitude.architect.StartupConfiguration;
 
 import java.io.IOException;
-
 
 /**
  * Created by bryant on 9/28/16.
@@ -101,14 +98,16 @@ public class GhostWatch extends AppCompatActivity {
         // TODO: make camera wait until onRequestPermissionsResult completes w/o error (if denied on resume)
         super.onResume();
         this.architectView.onResume();
-        boo.start();
+        if (!boo.isPlaying())
+            boo.start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         this.architectView.onPause();
-        boo.stop();
+        if (boo.isPlaying())
+            boo.stop();
     }
 
     @Override
