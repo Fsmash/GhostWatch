@@ -16,7 +16,7 @@ var World = {
 		/*
 			Next the model object is loaded.
 		*/
-		var modelEarth = new AR.Model("assets/boo.wt3", {
+		var modelGhost = new AR.Model("assets/boo.wt3", {
 			onLoaded: this.worldLoaded,
 			scale: {
 				x: 0.0025,
@@ -36,7 +36,7 @@ var World = {
 		*/
 		var obj = new AR.GeoObject(location, {
             drawables: {
-               cam: [modelEarth],
+               cam: [modelGhost],
                indicator: [indicatorDrawable]
             }
         });

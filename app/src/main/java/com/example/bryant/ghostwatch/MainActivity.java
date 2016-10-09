@@ -1,7 +1,6 @@
 package com.example.bryant.ghostwatch;
 
 import android.Manifest;
-//import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -22,6 +21,9 @@ import com.wikitude.architect.ArchitectView;
 
 import java.io.File;
 
+/**
+ * Created by bryant 9/28/16
+ */
 
 public class MainActivity extends AppCompatActivity {
     /* constants for permissions */
@@ -87,13 +89,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         // TODO: make camera wait until onRequestPermissionsResult completes w/o error (if denied on resume)
         super.onResume();
-        loginTheme.start();
+        if (!loginTheme.isPlaying())
+            loginTheme.start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        loginTheme.stop();
+        if (loginTheme.isPlaying())
+            loginTheme.stop();
     }
 
     @Override

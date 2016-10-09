@@ -11,3 +11,10 @@
 	opacity: 0.7;
 	display: table;
 }
+
+#ray {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+	width: 30%;
+}
