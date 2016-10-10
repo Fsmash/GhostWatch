@@ -1,7 +1,6 @@
 var World = {
 	loaded: false,
 	rotating: false,
-	animation: false,
 
 	init: function initFn() {
 		this.createModelAtLocation();
