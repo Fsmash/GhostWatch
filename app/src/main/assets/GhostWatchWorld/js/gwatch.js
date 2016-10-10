@@ -13,6 +13,12 @@ var World = {
 		*/
 		var location = new AR.RelativeLocation(null, 5, 0, 2);
 
+		var sound = new AR.Sound("assets/spooky.mp3");
+
+        var boo = new AR.Sound("assets/boo.mp3");
+
+		sound.play(-1);
+
 		/*
 			Next the model object is loaded.
 		*/
@@ -25,23 +31,42 @@ var World = {
 
         var imgLightning = new AR.ImageResource("assets/lightning.png");
 
-        var lightning = new AR.AnimatedImageDrawable(imgLightning, 5, 128, 512);
+        var lightning = new AR.AnimatedImageDrawable(imgLightning, 10, 128, 512, {
+            zOrder: 1
+        });
 
         lightning.animate([0, 1, 2, 3, 4, 5, 6, 7], 100, -1);
 
         var modelGhost = new AR.Model("assets/boo.wt3", {
         	onLoaded: this.worldLoaded,
+        	onClick: function() {
+        	    boo.play(1);
+        	    if (!lightning.isRunning()) {
+        	        lightning.animate([0, 1, 2, 3, 4, 5, 6, 7], 100, 5);
+        	    }
+        	},
         	scale: {
-        		x: 0.0005,
-        		y: 0.0005,
-        		z: 0.0005
-        	}
+        		x: 0.0025,
+        		y: 0.0025,
+        		z: 0.0025
+        	},
+            translate: {
+                x: 0,
+                y: 0,
+                z: -5
+            }
         });
 
 		/*
 			Putting it all together the location and 3D model is added to an AR.GeoObject.
 		*/
 		var obj = new AR.GeoObject(location, {
+		    onEnterFieldOfVision: function() {
+                //sound.stop();
+		    },
+		    onExitFieldOfVision: function() {
+		        //sound.play(-1);
+		    },
             drawables: {
                cam: [lightning, modelGhost],
                indicator: [indicatorDrawable]

@@ -3,7 +3,6 @@ package com.example.bryant.ghostwatch;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -36,11 +35,9 @@ public class GhostWatch extends AppCompatActivity {
             "oBkQjVJYJhLWNg/hPmG7S/1XgJ16JoyqFjSlZ8ymjqo1euxjYn0F47UeSdS7Yj8I9x1NnL45FIEYgsWL+OebjdQ" +
             "gM9WhY=";
 
-    public final String LOGIN = "com.example.bryant.ghostwatch.MAINACTIVITY";
     private final int CAM = 0;
     private ArchitectView architectView;
     private StartupConfiguration config;
-    private MediaPlayer boo;
 
 
     @Override
@@ -48,9 +45,6 @@ public class GhostWatch extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.wikitude);
         setupArchitectView();
-        boo = MediaPlayer.create(this, R.raw.boo);
-        boo.setLooping(true);
-        boo.start();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -73,23 +67,16 @@ public class GhostWatch extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        if (!boo.isPlaying())
-            boo.start();
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
-        boo = MediaPlayer.create(this, R.raw.boo);
-        boo.setLooping(true);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (boo.isPlaying())
-            boo.stop();
-        boo.release();
     }
 
     @Override
@@ -98,16 +85,12 @@ public class GhostWatch extends AppCompatActivity {
         // TODO: make camera wait until onRequestPermissionsResult completes w/o error (if denied on resume)
         super.onResume();
         this.architectView.onResume();
-        if (!boo.isPlaying())
-            boo.start();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         this.architectView.onPause();
-        if (boo.isPlaying())
-            boo.stop();
     }
 
     @Override
