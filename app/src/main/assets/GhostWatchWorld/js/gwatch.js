@@ -17,11 +17,9 @@ var World = {
 
         var boo = new AR.Sound("assets/boo.mp3");
 
-		sound.play(-1);
+        var blaster = new AR.Sound("assets/blaster.mp3");
 
-		/*
-			Next the model object is loaded.
-		*/
+		sound.play(-1);
 
         var indicatorImage = new AR.ImageResource("assets/indi.png");
 
@@ -31,9 +29,7 @@ var World = {
 
         var imgLightning = new AR.ImageResource("assets/lightning.png");
 
-        var lightning = new AR.AnimatedImageDrawable(imgLightning, 10, 128, 512, {
-            zOrder: 1
-        });
+        var lightning = new AR.AnimatedImageDrawable(imgLightning, 10, 128, 512);
 
         lightning.animate([0, 1, 2, 3, 4, 5, 6, 7], 100, -1);
 
@@ -41,6 +37,8 @@ var World = {
         	onLoaded: this.worldLoaded,
         	onClick: function() {
         	    boo.play(1);
+        	    blaster.play(1);
+        	    $("#ray").toggle();
         	    if (!lightning.isRunning()) {
         	        lightning.animate([0, 1, 2, 3, 4, 5, 6, 7], 100, 5);
         	    }
@@ -76,8 +74,7 @@ var World = {
 
 	worldLoaded: function worldLoadedFn() {
 		World.loaded = true;
-		var e = document.getElementById('loadingMessage');
-		e.parentElement.removeChild(e);
+		$("#loadingMessage").remove();
 	}
 
 };
