@@ -20,6 +20,7 @@ var World = {
         var blaster = new AR.Sound("assets/blaster.mp3");
 
 		sound.play(-1);
+		boo.play(-1);
 
         var indicatorImage = new AR.ImageResource("assets/indi.png");
 
@@ -29,19 +30,21 @@ var World = {
 
         var imgLightning = new AR.ImageResource("assets/lightning.png");
 
-        var lightning = new AR.AnimatedImageDrawable(imgLightning, 10, 128, 512);
+        var lightning = new AR.AnimatedImageDrawable(imgLightning, 10, 128, 512, {
+            onFinish: function() {this.opacity = 0.0;},
+            opacity : 0.0
+        });
 
-        lightning.animate([0, 1, 2, 3, 4, 5, 6, 7], 100, -1);
+        var scaleLightning = new AR.PropertyAnimation(lightning, "scale", 0.25, 1, 500);
+        var opacityLightning = new AR.PropertyAnimation(lightning, "opacity", 0.0, 1.0, 500);
 
         var modelGhost = new AR.Model("assets/boo.wt3", {
         	onLoaded: this.worldLoaded,
         	onClick: function() {
-        	    boo.play(1);
         	    blaster.play(1);
-        	    $("#ray").toggle();
-        	    if (!lightning.isRunning()) {
-        	        lightning.animate([0, 1, 2, 3, 4, 5, 6, 7], 100, 5);
-        	    }
+        	    scaleLightning.start();
+        	    opacityLightning.start();
+        	    lightning.animate([0, 1, 2, 3, 4, 5, 6, 7], 100);
         	},
         	scale: {
         		x: 0.0025,
@@ -60,7 +63,7 @@ var World = {
 		*/
 		var obj = new AR.GeoObject(location, {
 		    onEnterFieldOfVision: function() {
-                //sound.stop();
+                boo.stop();
 		    },
 		    onExitFieldOfVision: function() {
 		        //sound.play(-1);
