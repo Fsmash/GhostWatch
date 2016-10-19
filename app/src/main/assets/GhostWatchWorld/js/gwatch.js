@@ -32,13 +32,13 @@ var World = {
         });
 
         var imgLightning = new AR.ImageResource("assets/lightning.png");
-        var lightning = new AR.AnimatedImageDrawable(imgLightning, 10, 128, 512, {
+        var lightning = new AR.AnimatedImageDrawable(imgLightning, 20, 128, 512, {
             onFinish: function() {this.opacity = 0.0;},
             opacity : 0.0,
             offsetY: -5.0
         });
 
-        var scaleLightning = new AR.PropertyAnimation(lightning, "scale", 0.25, 1, 500);
+        //var scaleLightning = new AR.PropertyAnimation(lightning, "scale", 0.25, 1, 500);
         var opacityLightning = new AR.PropertyAnimation(lightning, "opacity", 0.0, 1.0, 500);
         var opacityExplosion = new AR.PropertyAnimation(explosion, "opacity", 0.0, 1.0, 500);
 
