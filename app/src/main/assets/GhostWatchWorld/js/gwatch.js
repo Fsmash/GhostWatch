@@ -34,7 +34,8 @@ var World = {
         var imgLightning = new AR.ImageResource("assets/lightning.png");
         var lightning = new AR.AnimatedImageDrawable(imgLightning, 10, 128, 512, {
             onFinish: function() {this.opacity = 0.0;},
-            opacity : 0.0
+            opacity : 0.0,
+            offsetY: -5.0
         });
 
         var scaleLightning = new AR.PropertyAnimation(lightning, "scale", 0.25, 1, 500);
@@ -45,7 +46,7 @@ var World = {
         	onLoaded: this.worldLoaded,
         	onClick: function() {
         	    blaster.play(1);
-        	    scaleLightning.start();
+        	    //scaleLightning.start();
         	    opacityLightning.start();
         	    opacityExplosion.start();
         	    lightning.animate([0, 1, 2, 3, 4, 5, 6, 7], 100);
