@@ -45,13 +45,15 @@ var World = {
         var modelGhost = new AR.Model("assets/boo.wt3", {
         	onLoaded: this.worldLoaded,
         	onClick: function() {
-        	    blaster.play(1);
-        	    //scaleLightning.start();
-        	    opacityLightning.start();
-        	    opacityExplosion.start();
-        	    lightning.animate([0, 1, 2, 3, 4, 5, 6, 7], 100);
-        	    explosion.animate([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
-        	    19, 20, 21, 22, 23, 24], 100);
+        	    if ($("#ray").is(':visible')) {
+                    blaster.play(1);
+                    //scaleLightning.start();
+                    opacityLightning.start();
+                    opacityExplosion.start();
+                    lightning.animate([0, 1, 2, 3, 4, 5, 6, 7], 100);
+                    explosion.animate([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
+                    19, 20, 21, 22, 23, 24], 100);
+                }
         	},
         	scale: {
         		x: 0.0025,
