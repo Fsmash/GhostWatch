@@ -49,10 +49,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker ghost_mark;
 
     public final String USRNAME = "com.example.bryant.ghostwatch.MAINACTIVITY";
-    private final String IP = "136.168.201.102";
+    private final String IP = "136.168.201.100";
     private final int PORT = 9067;
-    public ObjectOutputStream output = null;
-    public ObjectInputStream input = null;
+    private boolean connected = false;
+    private String usrName;
+    protected ObjectOutputStream output = null;
+    protected ObjectInputStream input = null;
+    protected ConnectToServer c;
 
     /**
      * Provides the entry point to Google Play services.
@@ -75,9 +78,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         Intent intent = getIntent();
-        String usrName = intent.getStringExtra(USRNAME);
-        ConnectToServer c = new ConnectToServer();
-        c.execute(usrName);
+        usrName = intent.getStringExtra(USRNAME);
+        c = new ConnectToServer();
+        //c.execute(usrName);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -156,6 +159,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onStart() {
         permissionCheck();
         super.onStart();
+        if (!connected) {
+            c.execute(usrName);
+            connected = true;
+        }
         mGoogleApiClient.connect();
     }
 
@@ -236,7 +243,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } catch (IOException ei) {
                 return false;
             }
-            Log.d("doInBackgroud", "connected to server");
+            Log.d("doInBackgroud", params[0] + "connected to server");
             return true;
         }
 
@@ -244,6 +251,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected void onPostExecute(Boolean result) {
             if (result) {
                 Toast.makeText(getApplicationContext(), "Connected to server.", Toast.LENGTH_SHORT).show();
+                connected = true;
             } else {
                 Toast.makeText(getApplicationContext(), "Failed to connect to server.", Toast.LENGTH_SHORT).show();
             }

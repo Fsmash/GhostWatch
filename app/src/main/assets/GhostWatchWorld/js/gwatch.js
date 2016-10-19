@@ -1,6 +1,5 @@
 var World = {
 	loaded: false,
-	rotating: false,
 
 	init: function initFn() {
 		this.createModelAtLocation();
@@ -63,16 +62,30 @@ var World = {
             translate: {
                 x: 0,
                 y: 0,
-                z: -5
+                z: -100
             }
         });
+
+        var rotateGhostY = new AR.PropertyAnimation(modelGhost, "rotate.heading", 0, 360, 1000);
+        var rotateGhostZ = new AR.PropertyAnimation(modelGhost, "rotate.roll", 0, 360, 2500);
+        var appearGhost = new AR.PropertyAnimation(modelGhost, "translate.z", -200, -5, 2500);
+        var rightGhost = new AR.PropertyAnimation(modelGhost, "translate.x", modelGhost.translate.x, 25, 2000);
+        var leftGhost = new AR.PropertyAnimation(modelGhost, "translate.x", modelGhost.translate.x, -25, 2000);
 
 		/*
 			Putting it all together the location and 3D model is added to an AR.GeoObject.
 		*/
+		var appear = false;
+		setInterval(function(){rotateGhostY.start();}, 10000);
+
 		var obj = new AR.GeoObject(location, {
 		    onEnterFieldOfVision: function() {
                 boo.stop();
+                if (!appear) {
+                    rotateGhostZ.start();
+                    appearGhost.start();
+                    appear = true;
+                }
 		    },
 		    onExitFieldOfVision: function() {
 		        boo.play(-1);
