@@ -13,10 +13,13 @@ var World = {
 		var location = new AR.RelativeLocation(null, 5, 0, 2);
 
 		var sound = new AR.Sound("assets/spooky.mp3");
+		var ambient = new AR.Sound("assets/ambient.mp3");
         var boo = new AR.Sound("assets/boo.mp3");
         var blaster = new AR.Sound("assets/blaster.mp3");
+        var laugh = new AR.Sound("assets/laugh.mp3");
 
 		sound.play(-1);
+		ambient.play(-1);
 		boo.play(-1);
 
         var indicatorImage = new AR.ImageResource("assets/indi.png");
@@ -69,14 +72,26 @@ var World = {
         var rotateGhostY = new AR.PropertyAnimation(modelGhost, "rotate.heading", 0, 360, 1000);
         var rotateGhostZ = new AR.PropertyAnimation(modelGhost, "rotate.roll", 0, 360, 2500);
         var appearGhost = new AR.PropertyAnimation(modelGhost, "translate.z", -200, -5, 2500);
-        var rightGhost = new AR.PropertyAnimation(modelGhost, "translate.x", modelGhost.translate.x, 25, 2000);
-        var leftGhost = new AR.PropertyAnimation(modelGhost, "translate.x", modelGhost.translate.x, -25, 2000);
+        var rightGhost = new AR.PropertyAnimation(modelGhost, "translate.x", modelGhost.translate.x, 5, 2000);
+        var leftGhost = new AR.PropertyAnimation(modelGhost, "translate.x", modelGhost.translate.x, -5, 2000);
 
 		/*
 			Putting it all together the location and 3D model is added to an AR.GeoObject.
 		*/
 		var appear = false;
-		setInterval(function(){rotateGhostY.start();}, 10000);
+
+		setInterval(function() {
+		    rotateGhostY.start();
+		    laugh.play();
+		}, 15000);
+		setInterval(function() {
+		    var rand = Math.floor((Math.random() * 2));
+		    if (rand > 0) {
+		        rightGhost.start();
+		    } else {
+		        leftGhost.start();
+		    }
+		}, 45000);
 
 		var obj = new AR.GeoObject(location, {
 		    onEnterFieldOfVision: function() {
