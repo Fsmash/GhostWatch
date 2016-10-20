@@ -72,8 +72,20 @@ var World = {
         var rotateGhostY = new AR.PropertyAnimation(modelGhost, "rotate.heading", 0, 360, 1000);
         var rotateGhostZ = new AR.PropertyAnimation(modelGhost, "rotate.roll", 0, 360, 2500);
         var appearGhost = new AR.PropertyAnimation(modelGhost, "translate.z", -200, -5, 2500);
-        var rightGhost = new AR.PropertyAnimation(modelGhost, "translate.x", modelGhost.translate.x, 5, 2000);
-        var leftGhost = new AR.PropertyAnimation(modelGhost, "translate.x", modelGhost.translate.x, -5, 2000);
+        var rightGhost = new AR.PropertyAnimation(modelGhost, "translate.x", modelGhost.translate.x, 5, 2000, {
+            onFinish : function() {
+            modelGhost.translate.x = 5;
+            lightning.offSetX = 5;
+            explosion.offsetX = 5;
+            }
+        });
+        var leftGhost = new AR.PropertyAnimation(modelGhost, "translate.x", modelGhost.translate.x, -5, 2000, {
+            onFinish : function() {
+            modelGhost.translate.x = -5;
+            lightning.offSetX = -5;
+            explosion.offsetX = -5;
+            }
+        });
 
 		/*
 			Putting it all together the location and 3D model is added to an AR.GeoObject.
@@ -84,6 +96,7 @@ var World = {
 		    rotateGhostY.start();
 		    laugh.play();
 		}, 15000);
+		/*
 		setInterval(function() {
 		    var rand = Math.floor((Math.random() * 2));
 		    if (rand > 0) {
@@ -91,7 +104,7 @@ var World = {
 		    } else {
 		        leftGhost.start();
 		    }
-		}, 45000);
+		}, 45000); */
 
 		var obj = new AR.GeoObject(location, {
 		    onEnterFieldOfVision: function() {

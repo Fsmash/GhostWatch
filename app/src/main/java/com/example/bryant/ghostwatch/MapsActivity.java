@@ -51,11 +51,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public final String USRNAME = "com.example.bryant.ghostwatch.MAINACTIVITY";
     private final String IP = "136.168.201.100";
     private final int PORT = 9067;
-    private boolean connected = false;
     private String usrName;
+    private Socket sk;
+    private boolean connected = false;
+    private boolean disconnect = false;
     protected ObjectOutputStream output = null;
     protected ObjectInputStream input = null;
-    protected ConnectToServer c;
+    protected connectToServer c;
 
     /**
      * Provides the entry point to Google Play services.
@@ -79,8 +81,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Intent intent = getIntent();
         usrName = intent.getStringExtra(USRNAME);
-        c = new ConnectToServer();
-        //c.execute(usrName);
+        c = new connectToServer();
+        //Toast.makeText(this, "User " + usrName, Toast.LENGTH_SHORT).show();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -172,22 +174,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
+        //disconnect = true;
+        //disconnect();
     }
 
-    /*
     @Override
     protected void onDestroy() {
-        if (input != null) {
-            try {
-                input.close();
-            } catch (IOException e) {}
+        super.onDestroy();
+        if (connected) {
+            disconnect = true;
+            disconnect();
         }
-        if (output != null) {
-            try {
-                output.close();
-            } catch (IOException e) {}
-        }
-    }*/
+    }
 
     /**
      * Runs when a GoogleApiClient object successfully connects.
@@ -226,12 +224,38 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mGoogleApiClient.connect();
     }
 
-    private class ConnectToServer extends AsyncTask<String, Void, Boolean> {
+    public void disconnect() {
+        try {
+            output.writeObject(".disconnect");
+        } catch(IOException e) {e.printStackTrace();}
+    }
+
+    private class updateInfo implements Runnable {
+        public void run() {
+            String msg = "";
+            try {
+                while (!disconnect) {
+                    msg = input.readObject().toString();
+                }
+            } catch (IOException e) {}
+            catch (ClassNotFoundException e) {}
+            finally {
+                try {
+                    input.close();
+                    output.close();
+                    sk.close();
+                } catch (IOException e) {}
+            }
+        }
+    }
+
+    private class connectToServer extends AsyncTask<String, Void, Boolean> {
         @Override
         protected Boolean doInBackground(String... params) {
+            Log.d("doInBackgroud", params[0] + " connecting to server");
             try {
                 InetAddress serverAddr = InetAddress.getByName(IP);
-                Socket sk = new Socket(serverAddr, PORT);
+                sk = new Socket(serverAddr, PORT);
                 try {
                     output = new ObjectOutputStream(sk.getOutputStream());
                     input = new ObjectInputStream(sk.getInputStream());
@@ -243,7 +267,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             } catch (IOException ei) {
                 return false;
             }
-            Log.d("doInBackgroud", params[0] + "connected to server");
             return true;
         }
 
@@ -252,6 +275,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (result) {
                 Toast.makeText(getApplicationContext(), "Connected to server.", Toast.LENGTH_SHORT).show();
                 connected = true;
+                new Thread(new updateInfo()).start();
             } else {
                 Toast.makeText(getApplicationContext(), "Failed to connect to server.", Toast.LENGTH_SHORT).show();
             }
