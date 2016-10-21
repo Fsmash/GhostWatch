@@ -82,6 +82,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Intent intent = getIntent();
         usrName = intent.getStringExtra(USRNAME);
         c = new connectToServer();
+        if (!connected) {
+            c.execute(usrName);
+        }
         //Toast.makeText(this, "User " + usrName, Toast.LENGTH_SHORT).show();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
@@ -161,10 +164,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onStart() {
         permissionCheck();
         super.onStart();
-        if (!connected) {
-            c.execute(usrName);
-            connected = true;
-        }
         mGoogleApiClient.connect();
     }
 
@@ -174,8 +173,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
-        //disconnect = true;
-        //disconnect();
     }
 
     @Override
@@ -227,7 +224,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void disconnect() {
         try {
             output.writeObject(".disconnect");
-        } catch(IOException e) {e.printStackTrace();}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private class updateInfo implements Runnable {
@@ -237,14 +236,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 while (!disconnect) {
                     msg = input.readObject().toString();
                 }
-            } catch (IOException e) {}
-            catch (ClassNotFoundException e) {}
-            finally {
+            } catch (IOException e) {
+            } catch (ClassNotFoundException e) {
+            } finally {
                 try {
                     input.close();
                     output.close();
                     sk.close();
-                } catch (IOException e) {}
+                } catch (IOException e) {
+                }
             }
         }
     }
@@ -273,11 +273,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         protected void onPostExecute(Boolean result) {
             if (result) {
-                Toast.makeText(getApplicationContext(), "Connected to server.", Toast.LENGTH_SHORT).show();
                 connected = true;
+                Toast.makeText(getApplicationContext(), "Connected to server.", Toast.LENGTH_SHORT).show();
                 new Thread(new updateInfo()).start();
             } else {
                 Toast.makeText(getApplicationContext(), "Failed to connect to server.", Toast.LENGTH_SHORT).show();
+                sk = null;
+                input = null;
+                output = null;
+                connected = false;
             }
         }
     }

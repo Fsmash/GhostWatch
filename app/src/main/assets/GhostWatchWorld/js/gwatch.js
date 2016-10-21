@@ -30,12 +30,14 @@ var World = {
         var explosionImage = new AR.ImageResource("assets/explosion.png");
         var explosion = new AR.AnimatedImageDrawable(explosionImage, 5, 192, 195, {
             onFinish: function() {this.opacity = 0.0;},
+            zOrder: 2,
             opacity : 0.0
         });
 
         var imgLightning = new AR.ImageResource("assets/lightning.png");
         var lightning = new AR.AnimatedImageDrawable(imgLightning, 20, 128, 512, {
             onFinish: function() {this.opacity = 0.0;},
+            zOrder: 1,
             opacity : 0.0,
             offsetY: -5.0
         });
@@ -65,7 +67,7 @@ var World = {
             translate: {
                 x: 0,
                 y: 0,
-                z: -100
+                z: -200
             }
         });
 
@@ -106,6 +108,13 @@ var World = {
 		    }
 		}, 45000); */
 
+        var animations = new AR.GeoObject(location, {
+            drawables: {
+                cam: [explosion, lightning],
+            },
+            renderingOrder: 1
+        });
+
 		var obj = new AR.GeoObject(location, {
 		    onEnterFieldOfVision: function() {
                 boo.stop();
@@ -119,9 +128,10 @@ var World = {
 		        boo.play(-1);
 		    },
             drawables: {
-               cam: [explosion, lightning, modelGhost],
+               cam: [modelGhost],
                indicator: [indicatorDrawable]
-            }
+            },
+            renderingOrder: 0
         });
 	},
 
