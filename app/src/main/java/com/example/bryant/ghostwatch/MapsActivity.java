@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.Pair;
 import android.view.WindowManager;
 import android.widget.Toast;
 
@@ -37,6 +38,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, ConnectionCallbacks, OnConnectionFailedListener {
@@ -49,12 +54,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker ghost_mark;
 
     public final String USRNAME = "com.example.bryant.ghostwatch.MAINACTIVITY";
-    private final String IP = "136.168.201.100";
-    private final int PORT = 9067;
-    private String usrName;
     private Socket sk;
     private boolean connected = false;
     private boolean disconnect = false;
+    private HashMap<String, Pair>playerLoc;
+    private String playerKey = null;
     protected ObjectOutputStream output = null;
     protected ObjectInputStream input = null;
     protected connectToServer c;
@@ -80,13 +84,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         Intent intent = getIntent();
-        usrName = intent.getStringExtra(USRNAME);
-
+        String usrName = intent.getStringExtra(USRNAME);
+        playerLoc = new HashMap<>();
         c = new connectToServer();
+
         if (!connected) {
             c.execute(usrName);
         }
-        //Toast.makeText(this, "User " + usrName, Toast.LENGTH_SHORT).show();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -231,22 +235,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private class updateInfo implements Runnable {
+        String []split;
         public void run() {
             Object msg;
-            int size;
             try {
                 while (!disconnect) {
                     msg = input.readObject();
-                    if (msg instanceof String) {
-                        Log.d("MESSAGE", msg.toString());
-                    }
-                    else if (msg instanceof Integer) {
-                        Log.d("MESSAGE", msg + " players connected.");
-                        size = (int)msg;
-                        for (int i = 0; i < size; i++) {
-                            msg = input.readObject();
-                            Log.d("MESSAGE", "Player " + msg + " connected");
-                        }
+                    split = msg.toString().split(":");
+                    if (split[0].equals("key")) {
+                        playerKey = split[1];
+                        Log.d("MESSAGE", "player's key " + playerKey);
+                    } else if (split[0].equals("remove")) {
+                        playerLoc.remove(split[1]);
+                    } else {
+                        playerLoc.put(split[0], new Pair(split[1], split[2]));
+                        Log.d("MESSAGE", "Player " + split[0] + " locations: lat:" + playerLoc.get(split[0]).first +
+                                " long:" + playerLoc.get(split[0]).second);
                     }
                 }
             } catch (IOException e) {
@@ -267,6 +271,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         protected Boolean doInBackground(String... params) {
             Log.d("doInBackgroud", params[0] + " connecting to server");
             try {
+                String IP = "136.168.201.100";
+                int PORT = 9067;
                 InetAddress serverAddr = InetAddress.getByName(IP);
                 sk = new Socket(serverAddr, PORT);
                 try {
@@ -286,11 +292,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         @Override
         protected void onPostExecute(Boolean result) {
             if (result) {
+                Timer timer  = new Timer();
                 connected = true;
+
                 Toast.makeText(getApplicationContext(), "Connected to server.", Toast.LENGTH_SHORT).show();
-                send("lat:" + mLastLocation.getLatitude());
-                send("lng:" + mLastLocation.getLongitude());
+
                 new Thread(new updateInfo()).start();
+                timer.scheduleAtFixedRate(new TimerTask() {
+                    @Override
+                    public void run() {
+                        if (playerKey != null) {
+                            send(playerKey + ":" + mLastLocation.getLatitude() + ":" + mLastLocation.getLongitude());
+                        }
+                    }
+                }, new Date(), 10000);
             } else {
                 Toast.makeText(getApplicationContext(), "Failed to connect to server.", Toast.LENGTH_SHORT).show();
                 sk = null;
