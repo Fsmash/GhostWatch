@@ -37,7 +37,6 @@ public class GhostWatch extends AppCompatActivity {
 
     private final int CAM = 0;
     private ArchitectView architectView;
-    private StartupConfiguration config;
 
 
     @Override
@@ -101,7 +100,7 @@ public class GhostWatch extends AppCompatActivity {
 
     private void setupArchitectView() {
         this.architectView = (ArchitectView) this.findViewById(R.id.architectView);
-        config = new StartupConfiguration(key, StartupConfiguration.Features.Geo, StartupConfiguration.CameraPosition.BACK);
+        StartupConfiguration config = new StartupConfiguration(key, StartupConfiguration.Features.Geo, StartupConfiguration.CameraPosition.BACK);
 
         try {
             this.architectView.onCreate(config);

@@ -1,11 +1,13 @@
 package com.example.bryant.ghostwatch;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -58,6 +60,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private boolean connected = false;
     private boolean disconnect = false;
     private HashMap<String, Pair>playerLoc;
+    private double lat = 0, lng = 0;
     private String playerKey = null;
     protected ObjectOutputStream output = null;
     protected ObjectInputStream input = null;
@@ -75,7 +78,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        buildGoogleApiClient();
         permissionCheck();
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -87,6 +89,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String usrName = intent.getStringExtra(USRNAME);
         playerLoc = new HashMap<>();
         c = new connectToServer();
+        buildGoogleApiClient();
 
         if (!connected) {
             c.execute(usrName);
@@ -105,30 +108,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        LatLng csub = new LatLng(35.349392, -119.104499);
-        LatLng ghost = new LatLng(35.349292, -119.104559);
+
+        //LatLng csub = new LatLng(35.349392, -119.104499);
+        //LatLng ghost = new LatLng(35.349292, -119.104559);
 
         mMap = googleMap;
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(csub));
-        googleMap.setMinZoomPreference(20.0f);
-        googleMap.setMaxZoomPreference(20.0f);
-        googleMap.setBuildingsEnabled(false);
-        googleMap.getUiSettings().setMapToolbarEnabled(false);
-        googleMap.getUiSettings().setAllGesturesEnabled(false);
-        csub_mark = googleMap.addMarker(new MarkerOptions()
-                .position(csub).title("Player Location")
-                .icon(BitmapDescriptorFactory
-                        .fromResource(R.drawable.marker)));
-        ghost_mark = googleMap.addMarker(new MarkerOptions()
-                .position(ghost).title("Ghost")
-                .icon(BitmapDescriptorFactory
-                        .fromResource(R.drawable.ghost)));
-        googleMap.setOnMarkerClickListener(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionCheck();
+        }
+        mMap.setMyLocationEnabled(true);
 
         try {
             // Customise the styling of the base map using a JSON object defined
             // in a raw resource file.
-            boolean success = googleMap.setMapStyle(
+            boolean success = mMap.setMapStyle(
                     MapStyleOptions.loadRawResourceStyle(
                             this, R.raw.style_json));
 
@@ -204,6 +197,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
+            lat = mLastLocation.getLatitude();
+            lng = mLastLocation.getLongitude();
+
+            LatLng loc = new LatLng(lat, lng);
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(loc));
+            mMap.setMinZoomPreference(20.0f);
+            mMap.setMaxZoomPreference(20.0f);
+            mMap.setBuildingsEnabled(false);
+            mMap.getUiSettings().setMapToolbarEnabled(false);
+            mMap.getUiSettings().setAllGesturesEnabled(false);
+            csub_mark = mMap.addMarker(new MarkerOptions()
+                    .position(loc).title("Player Location")
+                    .icon(BitmapDescriptorFactory
+                            .fromResource(R.drawable.marker)));
+            ghost_mark = mMap.addMarker(new MarkerOptions()
+                    .position(loc).title("Ghost")
+                    .icon(BitmapDescriptorFactory
+                            .fromResource(R.drawable.ghost)));
+            mMap.setOnMarkerClickListener(this);
             Toast.makeText(this, "Latitude: " + mLastLocation.getLatitude() + ", Longitude: " + mLastLocation.getLongitude(), Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Error: Could not determine location", Toast.LENGTH_LONG).show();
@@ -246,9 +258,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         playerKey = split[1];
                         Log.d("MESSAGE", "player's key " + playerKey);
                     } else if (split[0].equals("remove")) {
-                        playerLoc.remove(split[1]);
+                        if (playerLoc.containsKey(split[1])) {
+                            playerLoc.remove(split[1]);
+                            Log.d("MESSAGE", "player " + split[1] + " removed");
+                        }
                     } else {
-                        playerLoc.put(split[0], new Pair(split[1], split[2]));
+                        playerLoc.put(split[0], new Pair(Float.valueOf(split[1]), Float.valueOf(split[2])));
                         Log.d("MESSAGE", "Player " + split[0] + " locations: lat:" + playerLoc.get(split[0]).first +
                                 " long:" + playerLoc.get(split[0]).second);
                     }

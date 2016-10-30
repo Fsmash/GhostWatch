@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
     private final int CAM = 0;
     private final int LOCATION = 1;
 
-    private Button login;
     private EditText username;
     public final String LOGIN = "com.example.bryant.ghostwatch.MAINACTIVITY";
     private MediaPlayer loginTheme;
@@ -45,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         // Clearing ArchitectView cache
         clearCache(ArchitectView.getCacheDirectoryAbsoluteFilePath(this));
 
-        login = (Button) findViewById(R.id.login_button);
+        Button login = (Button) findViewById(R.id.login_button);
         username = (EditText) findViewById(R.id.editText2);
         loginTheme = MediaPlayer.create(this, R.raw.spooky);
         loginTheme.setLooping(true);
