@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">GhostWatch</string>
+    <string name="name">Player Name</string>
     <string name="main_login">Login</string>
     <string name="AlertDialog_OK">OK</string>
     <string name="username">Username</string>

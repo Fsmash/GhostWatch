@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
         if (loc) {
             locationPermission();
         } else {
+            startPlayerSelection();
             startMap();
         }
     }
@@ -174,6 +175,13 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void startPlayerSelection() {
+        Intent intent = new Intent(MainActivity.this, PlayerSelection.class);
+        String usr = username.getText().toString();
+        intent.putExtra(LOGIN, usr);
+        startActivity(intent);
+    }
+
     // from "https://developer.android.com/training/permissions/requesting.html#perm-request"
     // TODO: will add more permissions if/when needed
     @Override
@@ -182,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
             case CAM: {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startPlayerSelection();
                     startMap();
                 } else {
                     finish();   // cleanest way to "exit"
