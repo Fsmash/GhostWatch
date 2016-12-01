@@ -1,10 +1,12 @@
 <resources>
     <string name="app_name">GhostWatch</string>
-    <string name="name">Player Name</string>
+    <string name="name">Please enter a player name</string>
     <string name="main_login">Login</string>
     <string name="AlertDialog_OK">OK</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="logoDesc">GhostWatch Logo</string>
     <string name="title_activity_maps">Map</string>
+    <string name="player">icon picture</string>
+    <string name="setName">Set Player Name</string>
 </resources>

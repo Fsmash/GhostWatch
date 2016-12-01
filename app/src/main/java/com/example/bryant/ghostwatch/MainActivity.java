@@ -130,7 +130,6 @@ public class MainActivity extends AppCompatActivity {
             locationPermission();
         } else {
             startPlayerSelection();
-            startMap();
         }
     }
 
@@ -168,15 +167,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void startMap() {
-        Intent intent = new Intent(MainActivity.this, MapsActivity.class);
+    private void startPlayerSelection() {
+        Intent intent = new Intent(MainActivity.this, PlayerSelection.class);
         String usr = username.getText().toString();
         intent.putExtra(LOGIN, usr);
         startActivity(intent);
     }
 
-    private void startPlayerSelection() {
-        Intent intent = new Intent(MainActivity.this, PlayerSelection.class);
+    private void startMap() {
+        Intent intent = new Intent(MainActivity.this, MapsActivity.class);
         String usr = username.getText().toString();
         intent.putExtra(LOGIN, usr);
         startActivity(intent);

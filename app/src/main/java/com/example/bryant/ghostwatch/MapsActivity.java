@@ -1,13 +1,12 @@
 package com.example.bryant.ghostwatch;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -62,6 +61,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private HashMap<String, Pair>playerLoc;
     private double lat = 0, lng = 0;
     private String playerKey = null;
+    private Intent intent;
     protected ObjectOutputStream output = null;
     protected ObjectInputStream input = null;
     protected connectToServer c;
@@ -85,7 +85,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        Intent intent = getIntent();
+        intent = getIntent();
         String usrName = intent.getStringExtra(USRNAME);
         playerLoc = new HashMap<>();
         c = new connectToServer();
@@ -191,6 +191,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // applications that do not require a fine-grained location and that do not need location
         // updates. Gets the best and most recent location currently available, which may be null
         // in rare cases when a location is not available.
+        boolean icon = false;
+
+        intent = getIntent();
+        Bitmap playerIcon = intent.getParcelableExtra("PlayerIcon");
+        String playerName = intent.getStringExtra("PlayerName");
+
+        if(playerIcon != null) {
+            icon = true;
+        }
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             permissionCheck();
@@ -207,10 +216,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setBuildingsEnabled(false);
             mMap.getUiSettings().setMapToolbarEnabled(false);
             mMap.getUiSettings().setAllGesturesEnabled(false);
-            csub_mark = mMap.addMarker(new MarkerOptions()
-                    .position(loc).title("Player Location")
-                    .icon(BitmapDescriptorFactory
-                            .fromResource(R.drawable.marker)));
+
+            if(icon) {
+                csub_mark = mMap.addMarker(new MarkerOptions()
+                        .position(loc).title(playerName)
+                        .icon(BitmapDescriptorFactory
+                                .fromBitmap(playerIcon)));
+            } else {
+                csub_mark = mMap.addMarker(new MarkerOptions()
+                        .position(loc).title("Bob Macob")
+                        .icon(BitmapDescriptorFactory
+                                .fromResource(R.drawable.marker)));
+            }
             ghost_mark = mMap.addMarker(new MarkerOptions()
                     .position(loc).title("Ghost")
                     .icon(BitmapDescriptorFactory
@@ -222,7 +239,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    //@Override
+        //@Override
     public void onConnectionFailed(ConnectionResult result) {
         // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
         // onConnectionFailed.
